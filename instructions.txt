@@ -1,0 +1,232 @@
+Enterprise Software Engineering – Assignment 1 / 2 (Individual Assessment, 70%)
+The ESE module has two assignments, and this is the first one.
+
+1. Assignment Overview
+In this assignment, you will design, implement, and deploy an enterprise-style full-stack
+web application that addresses a real-world problem. The focus of this assessment is on
+applying enterprise software engineering principles, including architectural separation,
+secure system design, deployment practices, and testing.
+
+This assignment builds on earlier modules (including Software Quality Assurance), but
+places greater emphasis on independent system design and implementation rather than
+scaffolded development or documentation-heavy quality planning.
+
+Important:
+Not all features described in this brief are required to achieve a pass. The marking rubric
+explains how the scope, completeness, and enterprise maturity of your solution affect the
+final grade. Students are encouraged to prioritise correctness, clarity, and understanding
+before adding additional features.
+
+2. System Architecture Model
+
+For this module, your application is expected to follow a three-
+layer enterprise architecture:
+
+ Frontend: a client-side application implemented using
+React
+ Middleware: a REST API implemented using Django
+(e.g. Django REST Framework)
+This layer is responsible for authentication, authorisation,
+business logic, validation, and communication with the
+database.
+ Backend: a database layer (e.g. PostgreSQL) used for
+persistent data storage
+The frontend must communicate only with the middleware
+(REST API).
+The database must be accessed only via the middleware, not
+directly by the frontend.
+
+3. Application Scope and Functional Expectations
+You may choose any appropriate enterprise application domain (for example: task
+management, booking systems, inventory tracking, simple CRM, etc.). See Appendix A for
+further guidance on application functionality guidance.
+3.1 User Management
+At a basic level, your application should support:
+ User registration
+ User login
+ Secure authentication (for example, token-based authentication)
+More complete user management (such as editable user profiles and password reset
+functionality) is not required to pass, but contributes to higher marks, as outlined in the
+marking rubric.
+
+3.2 Domain Functionality
+Your application should include domain-specific functionality relevant to the chosen
+problem.
+Stronger submissions will demonstrate:
+ At least one well-designed domain-specific CRUD feature
+ Server-side validation
+ Meaningful business logic
+Implementing multiple domain features is rewarded at higher grade bands.
+
+4. Architecture and Design Expectations
+Your application should demonstrate a clear separation of concerns between layers:
+ React frontend focused on user interaction and presentation
+ Django-based REST API acting as the middleware layer
+ PostgreSQL database used exclusively for persistence
+Higher-quality submissions will demonstrate:
+ Modular and maintainable API design
+ Secure authentication and protected endpoints
+ Consideration of scalability and extensibility
+
+5. Technology Stack
+5.1 Supported Stack
+Module teaching, examples, and reference implementations are based on the following stack:
+ Frontend: React
+ Middleware (REST API): Django / Django REST Framework
+ Backend (Database): PostgreSQL
+You are encouraged to use the supported stack to align with teaching materials and
+available support. If you already have experience with alternative stacks, you may discuss
+this with your lecturer. While other stacks (for example MERN or similar full-stack
+frameworks) may be used, teaching and technical support will be primarily limited to React,
+Django, and PostgreSQL.
+
+6. Repositories and Code Organisation
+You are expected to maintain two separate GitHub repositories:
+1. A frontend repository containing the React application
+2. A middleware repository containing the Django REST API
+The database schema, models, and migrations form part of the middleware repository.
+Reference implementations will be demonstrated during the module for guidance only. You
+are expected to implement your solution independently.
+
+7. Security and External Integrations
+7.1 Security Expectations
+Your application should demonstrate appropriate security practices for the level attempted,
+such as:
+ Secure password storage
+ Authentication-protected API endpoints
+ Clear handling of authentication and authorisation errors
+More advanced authentication workflows (e.g. full JWT-based authentication, password reset
+flows) contribute to higher marks.
+
+7.2 External Services (Encouraged)
+Integration with external services commonly used in enterprise systems is encouraged, but
+not required to achieve a pass.
+Examples include:
+ Email services (e.g. using SendGrid for password reset or system notifications)
+ Cloud-based media storage (e.g. using Cloudinary for storing user-uploaded files such
+as profile images)
+These integrations are explicitly rewarded at higher grade bands. External services such as
+email delivery and cloud-based media storage are widely used in enterprise applications to
+improve reliability, scalability, and separation of concerns. Leveraging services like email
+providers and managed storage platforms allows teams to offload non-core infrastructure
+responsibilities while ensuring secure, performant, and maintainable systems.
+
+8. Deployment Expectations
+You are expected to demonstrate some level of deployment, appropriate to the grade band
+you are aiming for.
+ Deploying a single component (frontend or middleware) may be sufficient at lower
+bands
+ Deploying both frontend and middleware, with secure configuration, contributes to
+higher marks
+ Evidence of CI/CD practices is rewarded at the highest level
+Module learning materials will focus on deploying applications using the free Render
+platform. Students may use alternative deployment platforms if they are familiar with them;
+however, support will be aligned with Render, and students are responsible for ensuring
+that only freely available services are used, as no costs will be reimbursed by Ada. If in
+doubt, check with your lecturer.
+Students should briefly demonstrate a successful deployment or deployment attempt I the
+video recording and include all relevant deployment links in their README documentation.
+It is the student's responsibility to ensure that deployment links are functional at the time of
+marking; while marking will normally take place within three weeks of submission, students
+must ensure that any free-tier services used (for example, PostgreSQL on Render) remain
+active and accessible for at least three weeks from the submission date.
+
+9. Testing Expectations
+You are expected to demonstrate appropriate testing practices for an enterprise application,
+such as:
+
+ Unit tests
+ API tests
+ Tests covering authentication or core domain logic
+
+10. Documentation
+Documentation should clearly explain:
+ Application setup and usage
+ Architecture and layering
+ Key technical decisions
+Higher-quality submissions will include two clear README files, one for the frontend
+repository and one for the middleware repository.
+
+11. Video Demonstration – Student Checklist (≤ 20
+minutes)
+Use this checklist to structure your video. You should move between the user interface,
+code, database, and external tools where relevant. This is lecturer guidance; always refer
+to the marking rubric for final assessment criteria.
+Core User Flows
+ Demonstrate user registration
+ Demonstrate user login and authentication behaviour
+Password Reset (Email Integration – if implemented)
+ Trigger password reset from the UI
+ Show the reset email being received (e.g. via SendGrid or similar)
+ Click the reset link, reset the password, and log in successfully
+ Briefly show where email integration is handled in the backend
+Domain Functionality (CRUD)
+ Demonstrate one or more CRUD features (create, edit, delete)
+ Show the effect of actions via the API and/or database
+ Highlight validation or business logic
+Media Storage (if implemented)
+ Upload and display a file (e.g. profile image)
+ Show that the file is stored externally (e.g. Cloudinary)
+ Briefly explain how the integration works
+Enterprise Qualities
+ Explain security features (authentication, protected routes, password handling)
+ Highlight modularity and maintainability (clean structure, separation of concerns)
+ Mention any scalability considerations
+Testing
+ Show the presence of tests (unit and/or API tests)
+ Explain what is being tested and why
+ Demonstrate tests running successfully (where possible)
+Deployment
+ Show the deployed application running (frontend and/or backend)
+ Open and demonstrate live deployment link(s)
+Deployment Good Practices
+ Show use of environment variables and secure configuration
+ Mention CI/CD setup if applicable
+
+12. Use of Generative AI
+You may use generative AI tools (e.g. ChatGPT, GitHub Copilot) to support learning and
+development.
+However:
+ You remain responsible for all submitted work
+ You must understand and be able to explain your implementation
+ AI usage must be acknowledged in the readme document
+This module is classified as YELLOW under institutional AI guidance.
+
+13. Submission Requirements
+You must submit:
+1. A link to your frontend (React) repository
+2. A link to your middleware (Django REST API) repository
+3. A link to your 20-minute (maximum) video demonstration
+
+Final note
+A smaller, well-architected system that is clearly explained will score higher than a larger
+system with weak separation or limited understanding.
+
+PASS CRITERIA (70%+):
+
+Feature Implementation (30%): Enterprise-grade authentication (login, registration,
+profile management; password reset where appropriate)
+and one domain-specific CRUD implemented in depth.
+Features are robust, secure, and well-integrated.
+Additional CRUD areas are treated as enhancements, not
+requirements.
+
+Quality of Architecture (30%): A fully realised enterprise architecture with clean API
+boundaries and modular design. The system is secure,
+scalable, maintainable, and extensible, following
+enterprise best practices.
+
+Testing (10%): A well-structured testing strategy with meaningful tests
+covering authentication, domain logic, and key workflows.
+Tests are clearly explained and aligned with enterprise
+quality expectations.
+
+Deployment (20%): Fully deployed frontend and backend with evidence of
+enterprise deployment practices such as secure handling
+of secrets, environment-based configuration, and CI/CD
+where appropriate.
+
+Documentation Quality (10%): Professional, comprehensive documentation with clear
+README files per repository, covering setup, usage,
+architecture, authentication, deployment, and technical
+decisions. Suitable for enterprise handover.
