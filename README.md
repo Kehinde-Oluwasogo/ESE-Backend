@@ -341,6 +341,137 @@ GitHub Actions automatically runs the full test suite on every push and pull req
 
 See [.github/workflows/ci.yml](.github/workflows/ci.yml) for full CI/CD configuration.
 
+## Key Technical Decisions
+
+This section explains the architectural and design choices that drive the system's reliability, scalability, and maintainability.
+
+### 1. JWT-Based Stateless Authentication
+
+**Decision**: Use Simple JWT (djangorestframework-simplejwt) for token-based authentication instead of session-based auth.
+
+**Rationale**:
+- **Scalability**: Stateless tokens eliminate server-side session storage, enabling horizontal scaling
+- **Mobile-Friendly**: Tokens work seamlessly with mobile and single-page applications
+- **API-First Design**: RESTful APIs benefit from token-based auth; clients manage tokens autonomously
+- **Security**: Short-lived access tokens + refresh tokens follow OAuth 2.0 patterns
+- **Flexibility**: Clients can store tokens securely (e.g., httpOnly cookies, secure storage)
+
+**Trade-off**: Token revocation requires additional logic (token blacklisting or short expiration times); we chose short expiration as the primary strategy.
+
+### 2. Role-Based Access Control (RBAC) Over Attribute-Based
+
+**Decision**: Enforce permissions at the view/serializer level using Django's built-in `is_superuser` flag rather than implementing complex attribute-based access control (ABAC).
+
+**Rationale**:
+- **Simplicity**: Two-tier system (admin/user) matches the application scope
+- **Maintainability**: Clear, auditable permission logic in views
+- **Performance**: No complex permission matrix queries; simple boolean checks
+- **Extensibility**: Can be upgraded to ABAC if needed later (e.g., using django-guardian)
+
+**Implementation**: Serializer-level checks prevent regular users from overriding booking status; view-level checks protect admin endpoints.
+
+### 3. Password Reset Token Strategy
+
+**Decision**: Use time-bound, single-use tokens delivered via email instead of password reset links embedded in tokens.
+
+**Rationale**:
+- **Security**: Tokens are single-use, preventing token reuse after successful password reset
+- **Expiration**: 1-hour expiration window limits damage if token is compromised
+- **Clear Separation**: Email delivery (SendGrid) is separate from token validation logic
+- **Auditability**: Token creation logged in database for compliance
+
+**Implementation**:
+1. Client requests reset → system generates secure token
+2. Token stored in DB with expiration timestamp
+3. Email sent with reset link containing token
+4. Client submits token + new password
+5. Token marked as used; password updated
+
+### 4. Rate Limiting for Password Reset
+
+**Decision**: Implement custom rate limiting (3 attempts in 10 minutes) rather than using a third-party service.
+
+**Rationale**:
+- **Cost-Effective**: No external service dependency for this simple throttling requirement
+- **Control**: Custom logic provides transparency and auditability
+- **Graceful Degradation**: Returns remaining wait time, improving UX
+- **Prevents Brute Force**: Protects against password reset enumeration attacks
+
+**Future Enhancement**: Could migrate to Redis-based rate limiting (django-ratelimit) at scale.
+
+### 5. Modular Django App Architecture
+
+**Decision**: Separate `authentication` and `booking` into distinct Django apps with independent models, serializers, views, and tests.
+
+**Rationale**:
+- **Separation of Concerns**: Each app has a single responsibility
+- **Reusability**: Authentication app can be extracted/reused in other projects
+- **Testability**: Tests are isolated per app; easier to reason about dependencies
+- **Scalability**: Can move apps to separate microservices later if needed
+
+**Structure**:
+```
+authentication/     → User management, password reset, admin operations
+booking/            → Booking CRUD, business logic
+backend/            → Project settings, URL routing
+```
+
+### 6. Serializer-Level Validation Over Model-Level
+
+**Decision**: Place complex business logic (e.g., status enforcement) in serializers rather than models.
+
+**Rationale**:
+- **DRF Best Practice**: Serializers handle API-specific validation and transformation
+- **Flexibility**: Different serializers for different endpoints can enforce different rules
+- **Auditability**: Validation logic is visible in API layer (not database layer)
+- **Testing**: Easier to test serializer logic with request context
+
+**Example**: `BookingSerializer.update()` checks request.user permissions and resets status to pending for non-superusers.
+
+### 7. Activity Logging Over Implicit Audit
+
+**Decision**: Implement explicit `AdminActivityLog` and `AccountHistory` models for audit trails rather than relying on Django's migration history or audit middleware.
+
+**Rationale**:
+- **Compliance**: Clear, queryable audit trail for regulatory requirements
+- **Transparency**: Admin and account actions are explicitly logged with IP addresses
+- **Scalability**: Separate logging tables don't impact operational queries
+- **Searchability**: Indexed fields enable fast filtering by admin/user/action/timestamp
+
+**Fields Captured**: User, action type, target user, description, timestamp, IP address.
+
+### 8. Environment-Based Configuration
+
+**Decision**: Load all sensitive data (SECRET_KEY, API keys, database URLs) from environment variables using python-dotenv.
+
+**Rationale**:
+- **Security**: Secrets never committed to version control (checked via .gitignore)
+- **Flexibility**: Same codebase runs on development, staging, production with different env vars
+- **Best Practice**: Follows 12-factor app methodology
+- **CI/CD Ready**: Secrets injected at deployment time (Render dashboard, GitHub Actions secrets)
+
+### 9. PostgreSQL in Production, SQLite in Development
+
+**Decision**: Support both SQLite (default, develop locally) and PostgreSQL (production on Render).
+
+**Rationale**:
+- **Developer Experience**: No database setup required for local development
+- **Production Ready**: PostgreSQL provides concurrency, reliability, and replication
+- **Easy Migration**: DATABASE_URL env var controls database selection
+- **Testing**: CI/CD uses PostgreSQL service to test production conditions
+
+### 10. Gunicorn + WhiteNoise for Production Serving
+
+**Decision**: Use Gunicorn as WSGI server and WhiteNoise for static file serving.
+
+**Rationale**:
+- **Stability**: Gunicorn is production-tested, handles concurrent requests robustly
+- **Simplicity**: No separate nginx required; WhiteNoise serves static files from app
+- **Cost**: No additional infrastructure needed; fits free Render tier
+- **Performance**: Sufficient for enterprise booking system; can scale to load balancing if needed
+
+---
+
 ## Production Notes
 
 - Build helper script: [build.sh](build.sh)
