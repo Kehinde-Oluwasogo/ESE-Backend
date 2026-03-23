@@ -1,502 +1,488 @@
 # ESE Booking System Backend API
 
-Backend service for booking management, authentication, and admin operations, built with Django and Django REST Framework.
+Enterprise-grade backend service for booking management, authentication, and admin operations, built with Django and Django REST Framework.
+
+## 📋 Quick Links
+
+- **[API Documentation](API_DOCUMENTATION.md)** - Complete endpoint reference with request/response examples
+- **[System Architecture](ARCHITECTURE.md)** - Architecture diagrams and design patterns
+- **[Deployment Guide](DEPLOYMENT.md)** - Step-by-step production deployment instructions
+- **[Database Schema](DATABASE_SCHEMA.md)** - Complete database structure and relationships
+- **[Security Documentation](SECURITY.md)** - Authentication, authorization, and security practices
 
 ## Overview
 
-This repository contains the API layer for the ESE booking system. It includes:
+This repository contains the secure, scalable API layer for the ESE booking system with:
 
-- JWT authentication
-- User registration and profile retrieval
-- Password reset flow with token validation
-- Super-admin user and admin management endpoints
-- Booking CRUD endpoints with role-aware behavior
-- Admin and account activity logging
+✅ **Enterprise Authentication** - JWT tokens, password reset with rate limiting, role-based access control
+✅ **User Management** - Registration, profiles, admin capabilities with audit logging
+✅ **Booking System** - Full CRUD operations with permission-based filtering
+✅ **Activity Logging** - Comprehensive audit trail for compliance and security
+✅ **Production Ready** - Deployed on Render with PostgreSQL, comprehensive testing (33 tests)
 
 ## Tech Stack
 
-- Python
-- Django
-- Django REST Framework
-- Simple JWT
-- SendGrid (email delivery)
-- SQLite (default) or PostgreSQL via DATABASE_URL
-- Gunicorn + WhiteNoise (production serving)
+- **Backend Framework**: Python 3.10+ with Django & Django REST Framework
+- **Authentication**: JWT (Simple JWT library)
+- **Database**: SQLite (development) | PostgreSQL (production via DATABASE_URL)
+- **Email**: SendGrid integration for password reset emails
+- **Deployment**: Gunicorn + WhiteNoise on Render
+- **Testing**: Pytest with unit, integration, and BDD test coverage
 
-Dependencies are listed in [requirements.txt](requirements.txt).
+All dependencies are listed in [requirements.txt](requirements.txt).
 
-## Project Structure
+## 📁 Project Structure
 
-- [backend](backend): Django project settings and root URL configuration
-- [authentication](authentication): auth, password reset, admin/user management, logging
-- [booking](booking): booking model, serializer, and viewset
-- [manage.py](manage.py): Django management entrypoint
-- [build.sh](build.sh): build/deploy helper script
+```
+backend/                → Django project settings and root URL configuration
+authentication/         → User auth, password reset, admin/user management, logging
+booking/               → Booking CRUD with role-based access control
+staticfiles/           → Collected static files (admin, rest_framework)
+manage.py              → Django management entrypoint
+build.sh               → Build and migration script for Render deployment
+```
 
-## Setup
+## 🚀 Quick Start
 
-1. Clone repository and move into project directory.
-2. Create and activate a virtual environment.
-3. Install dependencies:
+### Prerequisites
+- Python 3.10+
+- Virtual environment tool (`venv`)
+- Git
+- SendGrid account (optional, for email testing)
 
+### Installation (5 minutes)
+
+**1. Create Virtual Environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate     # Windows
+```
+
+**2. Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Create environment variables (see next section).
-5. Apply migrations:
+**3. Create Environment Variables**
+```bash
+# Copy template
+cp .env.example .env  # if available, or create manually
 
+# Edit .env with your values (see Environment Variables section)
+nano .env
+```
+
+**4. Run Migrations**
 ```bash
 python manage.py migrate
 ```
 
-6. Create admin user (optional, recommended):
-
+**5. Create Admin User (Optional)**
 ```bash
 python manage.py createsuperuser
+# Follow prompts to create admin account
 ```
 
-7. Start development server:
-
+**6. Start Development Server**
 ```bash
 python manage.py runserver
 ```
 
-API is available at http://localhost:8000.
+API available at **http://localhost:8000/api**
 
-## Environment Variables
+---
 
-Create a .env file at project root (same level as [manage.py](manage.py)).
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root:
 
 ```env
-SECRET_KEY=change-me
-DEBUG=True
+# Django Settings
+SECRET_KEY=your-secret-key-change-me
+DEBUG=True                              # Set to False in production
+ENVIRONMENT=development
+
+# Database (SQLite for development)
+DATABASE_URL=sqlite:///db.sqlite3      # Or PostgreSQL in production
+
+# Security
 ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-
-# Database
-DATABASE_URL=sqlite:///db.sqlite3
-
-# Email
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@example.com
-# Optional alias used by settings
-FROM_EMAIL=noreply@example.com
-
-# URL used to build password reset links in email
-FRONTEND_URL=http://localhost:3000
-
-# CORS / CSRF (mainly for non-debug or hosted clients)
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 CSRF_TRUSTED_ORIGINS=http://localhost:3000
+
+# Email Service (SendGrid)
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@example.com
+FROM_EMAIL=noreply@example.com          # Alias for SENDGRID_FROM_EMAIL
+
+# Frontend URL (for password reset links)
+FRONTEND_URL=http://localhost:3000
+
+# With HashRouter, reset links should have the format:
+# FRONTEND_URL=http://localhost:3000/#/reset-password?token=...
 ```
 
-## API Routes
+**For Production (Render):** See [Deployment Guide](DEPLOYMENT.md#environment-setup)
 
-Base root:
+---
 
-- /admin/
-- /api/
-- /api/auth/
+## 📚 API Quick Reference
 
-Authentication routes are defined in [authentication/urls.py](authentication/urls.py).
+### Base URL
+- Development: `http://localhost:8000/api`
+- Production: `https://ese-booking-backend.onrender.com/api`
 
-### Public Authentication Endpoints
-
-- POST /api/auth/token/
-- POST /api/auth/token/refresh/
-- POST /api/auth/register/
-- POST /api/auth/password-reset/request/
-- POST /api/auth/password-reset/validate/
-- POST /api/auth/password-reset/confirm/
+### Public Endpoints (No Auth Required)
+```
+POST /auth/register/                    # Create user account
+POST /auth/token/                       # Login (get tokens)
+POST /auth/token/refresh/               # Refresh access token
+POST /auth/password-reset/request/      # Request password reset email
+POST /auth/password-reset/validate/     # Validate reset token
+POST /auth/password-reset/confirm/      # Confirm password reset
+```
 
 ### Authenticated User Endpoints
+```
+GET  /auth/user/                        # Get current user profile
+POST /auth/profile/picture/             # Update profile picture
+GET  /bookings/                         # List user's bookings
+POST /bookings/                         # Create booking
+GET  /bookings/{id}/                    # Get booking details
+PUT  /bookings/{id}/                    # Update booking
+PATCH /bookings/{id}/                   # Partial update booking
+DELETE /bookings/{id}/                  # Delete booking
+```
 
-- GET /api/auth/user/
-- POST /api/auth/profile/picture/
+### Admin-Only Endpoints
+```
+POST /auth/admin/create/                # Create admin user
+GET  /auth/admin/list/                  # List all admins
+POST /auth/admin/revoke/                # Revoke admin privileges
+GET  /auth/admin/activity-logs/         # View admin activity logs
+GET  /auth/users/list/                  # List all users
+POST /auth/users/create/                # Create user account
+POST /auth/users/change-password/       # Reset user password
+POST /auth/users/send-reset-link/       # Send reset email to user
+POST /auth/users/toggle-active/         # Activate/deactivate user
+```
 
-### Super Admin Endpoints
+**For full endpoint documentation with request/response examples, see [API Documentation](API_DOCUMENTATION.md)**
 
-- POST /api/auth/admin/create/
-- GET /api/auth/admin/list/
-- POST /api/auth/admin/revoke/
-- GET /api/auth/admin/activity-logs/
-- GET /api/auth/users/list/
-- POST /api/auth/users/create/
-- POST /api/auth/users/change-password/
-- POST /api/auth/users/send-reset-link/
-- POST /api/auth/users/toggle-active/
+---
 
-### Booking Endpoints
+## 🔐 Authentication
 
-The bookings API is provided by a DRF router in [backend/urls.py](backend/urls.py):
+## 🔐 Authentication
 
-- GET /api/bookings/
-- POST /api/bookings/
-- GET /api/bookings/{id}/
-- PUT /api/bookings/{id}/
-- PATCH /api/bookings/{id}/
-- DELETE /api/bookings/{id}/
+**Token-Based JWT Flow:**
+1. User registers or logs in
+2. Backend issues Access Token (5 min) + Refresh Token (24 hrs)
+3. Frontend includes Access Token: `Authorization: Bearer <token>`
+4. Token expires → use Refresh Token to get new Access Token
+5. User re-logs in when Refresh Token expires
 
-Behavior summary:
+**Password Reset Security:**
+- Rate limited: 3 attempts per 10 minutes
+- One-time tokens: Valid for 1 hour only
+- Secure delivery: Via SendGrid email
+- No token reuse: Marked as used after reset
 
-- Regular users only see and manage their own bookings.
-- Super admins can view all bookings.
-- Super admins may create bookings for another user by passing user_id.
+For detailed authentication, authorization, and token management, see [Security Documentation](SECURITY.md).
 
-## Data Model Summary
+---
 
-Core models are defined in [authentication/models.py](authentication/models.py) and [booking/models.py](booking/models.py):
-
-- UserProfile
-- PasswordResetToken
-- PasswordResetAttempt
-- AdminActivityLog
-- AccountHistory
-- Booking
-
-## Security Features
+## 🛡️ Security Features
 
 This application implements enterprise-grade security practices:
 
-### Authentication & Authorization
-- **JWT Token-Based Authentication**: Secure, stateless Bearer token authentication using `djangorestframework-simplejwt`
-- **Role-Based Access Control**: Superusers vs. regular users with granular endpoint protection
-- **Password Hashing**: Django's PBKDF2 hashing with salted keys (secure by default)
-- **Password Validation**: Built-in Django validators enforcing minimum length, complexity, and preventing common/dictionary passwords
+| Feature | Implementation |
+|---------|-----------------|
+| **JWT Authentication** | djangorestframework-simplejwt with short-lived tokens |
+| **Password Hashing** | PBKDF2-SHA256 with 260,000+ iterations |
+| **Rate Limiting** | 3 password reset attempts per 10 minutes |
+| **Role-Based Access** | Superuser vs regular user with granular endpoint protection |
+| **Audit Logging** | AdminActivityLog tracks all admin actions with IP addresses |
+| **Input Validation** | Serializer-level validation prevents invalid data |
+| **CORS Protection** | Restricted to configured frontend origins only |
+| **CSRF Protection** | Django middleware with trusted origins configuration |
+| **Token Expiration** | Single-use password reset tokens with 1-hour lifetime |
+| **Environment Variables** | Secrets never hardcoded (loaded from .env) |
 
-### Rate Limiting
-- **Password Reset Rate Limiting**: Maximum 3 password reset attempts in 10 minutes; further attempts return HTTP 429 (Too Many Requests)
-- **Prevents Brute Force Attacks**: Automatic throttling with time-remaining feedback to client
+**→ Full security details in [Security Documentation](SECURITY.md)**
 
-### Activity Logging & Audit Trail
-- **AdminActivityLog**: Tracks all admin actions (create admin, revoke privileges, password changes, etc.)
-- **AccountHistory**: Logs account lifecycle events (creation, revocation, restriction/unrestriction)
-- **IP Address Capture**: Client IP captured for audit trail investigation
+---
 
-### Input Validation & Error Handling
-- **Server-Side Validation**: Serializer-level validation for all inputs (email format, password strength, required fields)
-- **Clear Error Messages**: Detailed, actionable error responses without exposing sensitive system details
-- **Token Expiration**: Reset tokens expire after 1 hour; already-used tokens cannot be reused
+## 🧪 Testing
 
-### Network Security
-- **CORS Protection**: Configured for specific frontend origins only; no wildcard origins in production
-- **CSRF Protection**: Django's CSRF middleware enabled with trusted origins configuration
-- **Environment-Based Secrets**: All sensitive data (API keys, database credentials) loaded from environment variables, never hardcoded
+The project includes **33 comprehensive tests** across unit, integration, and BDD layers:
 
-### External Service Integration
-- **SendGrid Email**: Password reset tokens delivered securely via SendGrid (not stored in emails)
-- **Token Validation**: Time-bound, single-use tokens prevent unauthorized password resets
-
-## How to Use the Application
-
-### User Flow
-
-1. **Registration**
-   - Send POST request to `/api/auth/register/` with username, email, password, and optional profile fields
-   - Receives JWT access and refresh tokens
-   - UserProfile is automatically created
-
-2. **Login**
-   - Send POST request to `/api/auth/token/` with username and password
-   - Receive JWT access token (for API requests) and refresh token (to obtain new access tokens)
-
-3. **Manage Profile**
-   - GET `/api/auth/user/` to view authenticated user info
-   - POST `/api/auth/profile/picture/` to update profile picture URL
-
-4. **Password Reset**
-   - POST `/api/auth/password-reset/request/` with email to trigger reset email
-   - Check email for reset link (sent via SendGrid)
-   - POST `/api/auth/password-reset/validate/` to verify token is valid
-   - POST `/api/auth/password-reset/confirm/` with token and new password to reset
-
-5. **Create & Manage Bookings**
-   - GET `/api/bookings/` to view your bookings
-   - POST `/api/bookings/` to create a new booking with date, time, service details
-   - PATCH `/api/bookings/{id}/` to update booking notes (status resets to pending)
-   - DELETE `/api/bookings/{id}/` to cancel a booking
-   - *Admin Note*: Admins can see all bookings and override status changes
-
-6. **Token Refresh**
-   - Access tokens expire after a short period
-   - POST `/api/auth/token/refresh/` with refresh token to obtain a new access token
-
-### Admin User Flow
-
-Admins have additional capabilities:
-- Create other admin users: POST `/api/auth/admin/create/`
-- Revoke admin privileges: POST `/api/auth/admin/revoke/`
-- Create regular user accounts: POST `/api/auth/users/create/`
-- Change user passwords: POST `/api/auth/users/change-password/`
-- Send password reset links to users: POST `/api/auth/users/send-reset-link/`
-- Restrict/unrestrict accounts: POST `/api/auth/users/toggle-active/`
-- View all bookings and modify status: GET/PATCH `/api/bookings/`
-- View admin activity logs: GET `/api/auth/admin/activity-logs/`
-
-## Deployment
-
-### Deployed on Render
-
-This application is currently deployed on [Render](https://render.com) with a PostgreSQL database.
-
-**Production API URL**: https://ese-booking-backend.onrender.com (or your Render service URL)
-
-### Environment Variables on Render
-
-The following environment variables are configured in the Render dashboard:
-
-```env
-SECRET_KEY=<Django secret key>
-DEBUG=False
-ALLOWED_HOSTS=ese-booking-backend.onrender.com,localhost
-DATABASE_URL=<Render PostgreSQL connection URL>
-SENDGRID_API_KEY=<SendGrid API key>
-SENDGRID_FROM_EMAIL=noreply@example.com
-FROMTAIL_URL=<Your React frontend URL on Render>
-CORS_ALLOWED_ORIGINS=<Frontend Render URL>
-CSRF_TRUSTED_ORIGINS=<Frontend Render URL>
-```
-
-### Pre-Configured Admin Account for Testing
-
-**Important**: An admin account has been pre-configured on the live Render deployment for testing purposes. Reviewers should use these credentials to test admin functionality.
-
-**Admin Login Credentials**:
-- **Email**: `Sirkeno@gmail.com`
-- **Password**: `Sirkeno7991!`
-
-*Note*: New admin accounts cannot be created without superuser permissions. The system creator has seeded this account to allow reviewers to fully test admin functionality without requiring the ability to create new superusers.
-
-### Production Deployment Checklist
-
-- ✅ DEBUG set to False
-- ✅ SECRET_KEY loaded from environment (not hardcoded)
-- ✅ ALLOWED_HOSTS configured for production domain
-- ✅ CORS_ALLOWED_ORIGINS restricted to frontend domain(s)
-- ✅ CSRF_TRUSTED_ORIGINS set appropriately
-- ✅ PostgreSQL database configured via DATABASE_URL
-- ✅ SENDGRID_API_KEY configured for email delivery
-- ✅ Static files served via WhiteNoise
-- ✅ Gunicorn configured for production
-
-### Build & Deploy Commands (Render)
-
-**Build Command**:
-```bash
-pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
-```
-
-**Start Command**:
-```bash
-gunicorn backend.wsgi:application
-```
-
-## Testing
-
-The project includes **33 comprehensive tests** covering unit, integration, and BDD scenarios:
-
-### Test Structure
-
-- **Unit Tests** (8): Business logic validation
-  - Password reset rate limiting logic
-  - Token expiration and validity checks
-  - User profile creation via signals
-  - Serializer field validation and role enforcement
-
-- **Integration Tests** (23): Full API endpoint coverage
-  - User registration, login, and token refresh
-  - Password reset flow (request, validate, confirm)
-  - Admin endpoints (create, revoke, list, activity logs)
-  - Booking CRUD with permissions
-  - Error handling (invalid tokens, unauthorized access, missing fields)
-
-- **BDD Tests** (2): Feature-based acceptance scenarios using pytest-bdd
-  - Authentication profile retrieval
-  - Booking visibility rules
+- **8 Unit Tests**: Password rate limiting, token validation, profile creation
+- **23 Integration Tests**: Full API workflows with permissions and error handling
+- **2 BDD Tests**: Feature-based acceptance scenarios
 
 ### Running Tests Locally
 
 ```bash
-# Run all tests
-pytest
-
-# Run with verbose output
+# Run all tests with verbose output
 pytest -v
 
 # Run specific test file
 pytest authentication/tests/test_auth_unit.py
 
-# Run with coverage report
-coverage run -m pytest && coverage report
+# Generate coverage report
+coverage run -m pytest
+coverage report
 ```
 
 ### Continuous Integration
 
-GitHub Actions automatically runs the full test suite on every push and pull request to `main` or `develop` branches.
-- ✅ Tests run on Python 3.10 and 3.11
-- ✅ PostgreSQL database service for integration tests
+Tests automatically run on GitHub with:
+- ✅ Python 3.10 & 3.11
+- ✅ PostgreSQL service for integration tests
 - ✅ Code formatting checks (Black)
 - ✅ Linting checks (Flake8)
-- ✅ Coverage reports uploaded to Codecov
 
-See [.github/workflows/ci.yml](.github/workflows/ci.yml) for full CI/CD configuration.
-
-## Key Technical Decisions
-
-This section explains the architectural and design choices that drive the system's reliability, scalability, and maintainability.
-
-### 1. JWT-Based Stateless Authentication
-
-**Decision**: Use Simple JWT (djangorestframework-simplejwt) for token-based authentication instead of session-based auth.
-
-**Rationale**:
-- **Scalability**: Stateless tokens eliminate server-side session storage, enabling horizontal scaling
-- **Mobile-Friendly**: Tokens work seamlessly with mobile and single-page applications
-- **API-First Design**: RESTful APIs benefit from token-based auth; clients manage tokens autonomously
-- **Security**: Short-lived access tokens + refresh tokens follow OAuth 2.0 patterns
-- **Flexibility**: Clients can store tokens securely (e.g., httpOnly cookies, secure storage)
-
-**Trade-off**: Token revocation requires additional logic (token blacklisting or short expiration times); we chose short expiration as the primary strategy.
-
-### 2. Role-Based Access Control (RBAC) Over Attribute-Based
-
-**Decision**: Enforce permissions at the view/serializer level using Django's built-in `is_superuser` flag rather than implementing complex attribute-based access control (ABAC).
-
-**Rationale**:
-- **Simplicity**: Two-tier system (admin/user) matches the application scope
-- **Maintainability**: Clear, auditable permission logic in views
-- **Performance**: No complex permission matrix queries; simple boolean checks
-- **Extensibility**: Can be upgraded to ABAC if needed later (e.g., using django-guardian)
-
-**Implementation**: Serializer-level checks prevent regular users from overriding booking status; view-level checks protect admin endpoints.
-
-### 3. Password Reset Token Strategy
-
-**Decision**: Use time-bound, single-use tokens delivered via email instead of password reset links embedded in tokens.
-
-**Rationale**:
-- **Security**: Tokens are single-use, preventing token reuse after successful password reset
-- **Expiration**: 1-hour expiration window limits damage if token is compromised
-- **Clear Separation**: Email delivery (SendGrid) is separate from token validation logic
-- **Auditability**: Token creation logged in database for compliance
-
-**Implementation**:
-1. Client requests reset → system generates secure token
-2. Token stored in DB with expiration timestamp
-3. Email sent with reset link containing token
-4. Client submits token + new password
-5. Token marked as used; password updated
-
-### 4. Rate Limiting for Password Reset
-
-**Decision**: Implement custom rate limiting (3 attempts in 10 minutes) rather than using a third-party service.
-
-**Rationale**:
-- **Cost-Effective**: No external service dependency for this simple throttling requirement
-- **Control**: Custom logic provides transparency and auditability
-- **Graceful Degradation**: Returns remaining wait time, improving UX
-- **Prevents Brute Force**: Protects against password reset enumeration attacks
-
-**Future Enhancement**: Could migrate to Redis-based rate limiting (django-ratelimit) at scale.
-
-### 5. Modular Django App Architecture
-
-**Decision**: Separate `authentication` and `booking` into distinct Django apps with independent models, serializers, views, and tests.
-
-**Rationale**:
-- **Separation of Concerns**: Each app has a single responsibility
-- **Reusability**: Authentication app can be extracted/reused in other projects
-- **Testability**: Tests are isolated per app; easier to reason about dependencies
-- **Scalability**: Can move apps to separate microservices later if needed
-
-**Structure**:
-```
-authentication/     → User management, password reset, admin operations
-booking/            → Booking CRUD, business logic
-backend/            → Project settings, URL routing
-```
-
-### 6. Serializer-Level Validation Over Model-Level
-
-**Decision**: Place complex business logic (e.g., status enforcement) in serializers rather than models.
-
-**Rationale**:
-- **DRF Best Practice**: Serializers handle API-specific validation and transformation
-- **Flexibility**: Different serializers for different endpoints can enforce different rules
-- **Auditability**: Validation logic is visible in API layer (not database layer)
-- **Testing**: Easier to test serializer logic with request context
-
-**Example**: `BookingSerializer.update()` checks request.user permissions and resets status to pending for non-superusers.
-
-### 7. Activity Logging Over Implicit Audit
-
-**Decision**: Implement explicit `AdminActivityLog` and `AccountHistory` models for audit trails rather than relying on Django's migration history or audit middleware.
-
-**Rationale**:
-- **Compliance**: Clear, queryable audit trail for regulatory requirements
-- **Transparency**: Admin and account actions are explicitly logged with IP addresses
-- **Scalability**: Separate logging tables don't impact operational queries
-- **Searchability**: Indexed fields enable fast filtering by admin/user/action/timestamp
-
-**Fields Captured**: User, action type, target user, description, timestamp, IP address.
-
-### 8. Environment-Based Configuration
-
-**Decision**: Load all sensitive data (SECRET_KEY, API keys, database URLs) from environment variables using python-dotenv.
-
-**Rationale**:
-- **Security**: Secrets never committed to version control (checked via .gitignore)
-- **Flexibility**: Same codebase runs on development, staging, production with different env vars
-- **Best Practice**: Follows 12-factor app methodology
-- **CI/CD Ready**: Secrets injected at deployment time (Render dashboard, GitHub Actions secrets)
-
-### 9. PostgreSQL in Production, SQLite in Development
-
-**Decision**: Support both SQLite (default, develop locally) and PostgreSQL (production on Render).
-
-**Rationale**:
-- **Developer Experience**: No database setup required for local development
-- **Production Ready**: PostgreSQL provides concurrency, reliability, and replication
-- **Easy Migration**: DATABASE_URL env var controls database selection
-- **Testing**: CI/CD uses PostgreSQL service to test production conditions
-
-### 10. Gunicorn + WhiteNoise for Production Serving
-
-**Decision**: Use Gunicorn as WSGI server and WhiteNoise for static file serving.
-
-**Rationale**:
-- **Stability**: Gunicorn is production-tested, handles concurrent requests robustly
-- **Simplicity**: No separate nginx required; WhiteNoise serves static files from app
-- **Cost**: No additional infrastructure needed; fits free Render tier
-- **Performance**: Sufficient for enterprise booking system; can scale to load balancing if needed
+See [test.md](test.md) for detailed test coverage report.
 
 ---
 
-## Production Notes
+## 📦 Deployment
 
-- Build helper script: [build.sh](build.sh)
-- Typical production start command:
-
+### Development
 ```bash
-gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+python manage.py runserver
+# Runs on http://localhost:8000
 ```
 
-- Static files are collected to staticfiles and served with WhiteNoise.
-- Set DEBUG=False and configure ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, and CSRF_TRUSTED_ORIGINS appropriately.
+### Production (Render)
 
-## AI Usage Acknowledgment
+The application is deployed on [Render](https://render.com) with PostgreSQL.
 
-This project benefited from the use of **GitHub Copilot** and **ChatGPT** as development assistants. AI was instrumental in:
+**Production URL:** `https://ese-booking-backend.onrender.com`
 
-- **Framework Understanding**: Clarifying Django concepts, DRF patterns, and best practices for REST API design
-- **Challenge Resolution**: Debugging authentication flows, serializer validation logic, and role-based access control
-- **Code Generation**: Generating boilerplate for models, serializers, viewsets, and test cases that would require significant manual effort
-- **Testing Strategy**: Designing unit, integration, and BDD test structures; generating test cases for edge cases and error scenarios
-- **Documentation**: Helping structure and refine API documentation and README content
+**Quick Deploy Steps:**
+1. Push to `main` branch
+2. Render automatically builds and deploys
+3. See [Deployment Guide](DEPLOYMENT.md) for detailed instructions, troubleshooting, and monitoring
 
-**Important**: All generated code has been thoroughly reviewed, tested, and verified for correctness, security, and alignment with enterprise standards. The developer takes full responsibility for all submitted work and understands every component of the implementation.
+**Pre-Configured Admin Credentials (Testing Only):**
+```
+Email: Sirkeno@gmail.com
+Password: Sirkeno7991!
+```
+*⚠️ For testing only. Change immediately in production.*
 
-## Author
+**Current Production Deployment Checklist:**
+- ✅ DEBUG set to False
+- ✅ SECRET_KEY from environment variables
+- ✅ ALLOWED_HOSTS configured correctly
+- ✅ PostgreSQL database connected
+- ✅ Static files served via WhiteNoise
+- ✅ CORS restricted to frontend domain
+- ✅ CSRF protection enabled
+- ✅ SendGrid integrated for email delivery
+- ✅ Gunicorn configured for production workloads
 
-- Kehinde Oluwasogo
-- GitHub: https://github.com/KehindeOluwasogo-BC
+---
+
+## 🏗️ Architecture
+
+The system uses a modular, scalable architecture:
+
+```
+Frontend (React with HashRouter)
+         ↓
+    REST API (Django + DRF)
+         ↓
+  Authentication + Booking Apps
+         ↓
+    PostgreSQL Database
+         ↓
+    SendGrid Email Service
+```
+
+**Key Design Decisions:**
+- JWT tokens for stateless authentication
+- Role-Based Access Control (admin vs regular user)
+- Modular Django apps for maintainability
+- Separate serializers for API validation
+- Comprehensive audit logging for compliance
+
+See [System Architecture](ARCHITECTURE.md) for detailed diagram and design rationale.
+
+---
+
+## 📊 Data Models
+
+Core entities:
+
+| Model | Purpose |
+|-------|---------|
+| **User** | Django built-in with email, username, superuser flag |
+| **UserProfile** | Extended user data: picture, bio, memorable_information |
+| **Booking** | Service booking with date, time, status, notes |
+| **PasswordResetToken** | One-time password reset tokens (1-hour expiration) |
+| **AdminActivityLog** | Audit trail: admin actions, targets, IPs, timestamps |
+| **AccountHistory** | Account lifecycle events (created, revoked, restricted) |
+
+For complete schema with relationships and indexes, see [Database Schema](DATABASE_SCHEMA.md).
+
+---
+
+## 🔧 How to Use the Application
+
+### User Workflow
+
+**1. Registration**
+```bash
+POST /api/auth/register/
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "SecurePass123!",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+# Response: access & refresh tokens
+```
+
+**2. Login**
+```bash
+POST /api/auth/token/
+{
+  "username": "john_doe",
+  "password": "SecurePass123!"
+}
+# Response: access & refresh tokens
+```
+
+**3. View Profile**
+```bash
+GET /api/auth/user/
+Authorization: Bearer <access_token>
+```
+
+**4. Create Booking**
+```bash
+POST /api/bookings/
+Authorization: Bearer <access_token>
+{
+  "booking_date": "2026-04-15",
+  "booking_time": "10:00:00",
+  "service_type": "Haircut"
+}
+```
+
+**5. Password Reset**
+```bash
+# Step 1: Request reset
+POST /api/auth/password-reset/request/
+{ "email": "john@example.com" }
+
+# Step 2: User receives email with token link
+
+# Step 3: Validate token
+POST /api/auth/password-reset/validate/
+{ "token": "ABC123..." }
+
+# Step 4: Confirm reset with new password
+POST /api/auth/password-reset/confirm/
+{
+  "token": "ABC123...",
+  "new_password": "NewPass456!"
+}
+```
+
+### Admin Workflow
+
+Admins have additional capabilities:
+
+```bash
+# Create other admin users
+POST /api/auth/admin/create/
+
+# Create regular user accounts
+POST /api/auth/users/create/
+
+# Manage all bookings (view/update/delete)
+GET/PUT/PATCH/DELETE /api/bookings/
+
+# View admin activity logs
+GET /api/auth/admin/activity-logs/
+
+# View and manage user accounts
+GET /api/auth/users/list/
+POST /api/auth/users/change-password/
+POST /api/auth/users/toggle-active/
+```
+
+---
+
+## � Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **JWT Tokens** | Stateless auth enables horizontal scaling; works with SPAs and mobile apps |
+| **Role-Based Access** | Simple two-tier system (admin/user); extensible to ABAC if needed |
+| **Serializer Validation** | DRF best practice; keeps API logic away from models |
+| **Rate Limiting** | Custom implementation; prevents brute force without external dependencies |
+| **Audit Logging** | Explicit AdminActivityLog & AccountHistory for compliance and debugging |
+| **Environment Config** | 12-factor app; secrets never in code, works across dev/staging/prod |
+| **Modular Apps** | Independent auth & booking apps; can extract or scale separately |
+| **PostgreSQL in Prod** | Better concurrency and scaling than SQLite; professional backups |
+| **Gunicorn + WhiteNoise** | Production-tested WSGI; simple static file serving; fits free tier |
+
+For detailed explanations of all 10 design decisions, see [System Architecture](ARCHITECTURE.md#key-technical-decisions).
+
+---
+
+## 📖 Complete Documentation
+
+Every aspect of the system is documented:
+
+| Document | Contents |
+|----------|----------|
+| **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** | All endpoints with request/response examples, error codes |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, component interactions, data flows, diagrams |
+| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Render deployment, environment setup, monitoring, troubleshooting |
+| **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** | Models, relationships, indexes, query examples, migrations |
+| **[SECURITY.md](SECURITY.md)** | Authentication, authorization, token handling, incident response |
+| **[test.md](test.md)** | Test coverage by module, running tests, CI/CD info |
+
+---
+
+## 🙏 Acknowledgments
+
+This project benefited from **GitHub Copilot** and **ChatGPT** as development assistants for:
+- Framework and DRF pattern guidance
+- Code generation for boilerplate and tests
+- Documentation structure and refinement
+- Authentication flow debugging
+
+**All code has been thoroughly reviewed and tested.** Full responsibility taken for all implementation.
+
+---
+
+## 👨‍💻 Author
+
+**Kehinde Oluwasogo**
+- GitHub: https://github.com/Kehinde-Oluwasogo
+
+---
+
+## 📝 License
+
+[Add your license here if applicable]
+
+---
+
+## 📞 Support
+
+For issues, questions, or contributions:
+1. Check the relevant documentation file
+2. Review [Deployment Guide](DEPLOYMENT.md#troubleshooting) for common issues
+3. Check test files in `authentication/tests/` and `booking/tests/` for usage examples
