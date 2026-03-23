@@ -133,7 +133,7 @@ FRONTEND_URL=http://localhost:3000
 
 ### Base URL
 - Development: `http://localhost:8000/api`
-- Production: `https://ese-booking-backend.onrender.com/api`
+- Production: `https://backend-b2tz.onrender.com`
 
 ### Public Endpoints (No Auth Required)
 ```
