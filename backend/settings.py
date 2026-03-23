@@ -15,7 +15,7 @@ SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 FROM_EMAIL = os.getenv('FROM_EMAIL') or os.getenv('SENDGRID_FROM_EMAIL')
 
 # Frontend URL for password reset links
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://probable-barnacle-jg46wpvg6jj25gwg-3000.app.github.dev')
+FRONTEND_URL = os.getenv('CORS_ALLOWED_ORIGINS')
 
 
 def get_list_env(var_name, default_values):
@@ -39,7 +39,7 @@ ALLOWED_HOSTS = get_list_env(
     "ALLOWED_HOSTS",
     ["localhost", "127.0.0.1", "0.0.0.0", ".app.github.dev"],
 )
-hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+hostname = os.environ.get("CORS_ALLOWED_ORIGINS")
 if hostname:
     ALLOWED_HOSTS.append(hostname)
 
@@ -148,18 +148,24 @@ if DEBUG:
         r"^http://127\.0\.0\.1(:\d+)?$",
     ]
 else:
-    CORS_ALLOWED_ORIGINS = get_list_env(
+    cors_origins = get_list_env(
         "CORS_ALLOWED_ORIGINS",
         [FRONTEND_URL] if FRONTEND_URL else ["http://localhost:5173", "http://127.0.0.1:5173"],
     )
+    cors_origins += [
+        "https://frontend2-test.onrender.com",
+        "https://sturdy-pancake-pjwp4g6rx4gvh7g97-8000.app.github.dev",
+        "https://verbose-winner-x5pv794wj69pc6vvj-3000.app.github.dev",
+    ]
+    CORS_ALLOWED_ORIGINS = cors_origins
 
 CSRF_TRUSTED_ORIGINS = get_list_env(
     'CSRF_TRUSTED_ORIGINS',
     [
         'http://localhost:5173',
         'https://*.app.github.dev',
-        'https://ese-frontend-kb1r.onrender.com',
-        'https://probable-barnacle-jg46wpvg6jj25gwg-3000.app.github.dev',
+        'https://frontend2-test.onrender.com',
+        "https://verbose-winner-x5pv794wj69pc6vvj-3000.app.github.dev"
     ],
 )
 
