@@ -99,8 +99,8 @@ ESE Booking System architecture overview and design decisions.
 **Location:** `authentication/`
 
 **Endpoints:**
-- User registration & authentication
-- Password reset request/validation/confirmation
+- User registration & authentication (with case-insensitive username)
+- Password reset request/validation/confirmation (with case-insensitive email)
 - Profile management
 - Admin CRUD operations
 - User management (admin only)
@@ -109,10 +109,19 @@ ESE Booking System architecture overview and design decisions.
 **Key Components:**
 - `views.py`: API endpoints (ViewSet & APIView classes)
 - `serializers.py`: Input validation & transformation
+  - `CustomTokenObtainPairSerializer`: Case-insensitive username lookup for login
+  - `PasswordResetRequestSerializer`: Case-insensitive email lookup for password resets
+  - `RegisterSerializer`: Registration with memorable information (security question)
+  - `CreateAdminSerializer`: Admin creation with admin-specific permissions
 - `models.py`: User, UserProfile, PasswordResetToken, AdminActivityLog, AccountHistory
 - `urls.py`: URL routing
 - `permissions.py`: Custom permission classes
 - `utils.py`: Helper functions (token generation, email sending)
+
+**Login Improvements:**
+- Username lookup is **case-insensitive** via `CustomTokenObtainPairSerializer`
+- Users can login with "john_doe", "JOHN_DOE", or "John_Doe" - all work the same
+- Email lookup is **case-insensitive** for password reset requests
 
 #### Booking App
 **Location:** `booking/`
@@ -164,10 +173,18 @@ The system includes 8 predefined services with specific scheduling properties:
 ### 3. Business Logic Layer
 
 **Serializer Validation:**
-- Email existence checks
+- **Case-insensitive username lookup** - Login works with any case variation
+- **Case-insensitive email lookup** - Password reset works with any case variation
+- Email existence checks with case-insensitive search (`email__iexact`)
 - Password strength validation
+- Memorable information (security question) storage and retrieval
 - Status enforcement (regular users can't change booking status)
 - Field transformations
+
+**Case-Insensitive Handling:**
+- `CustomTokenObtainPairSerializer`: Converts username to lowercase and finds user with `username__iexact`
+- `PasswordResetRequestSerializer`: Normalizes email to lowercase and finds user with `email__iexact`
+- This improves UX by preventing "username not found" errors due to case differences
 
 **Permission System:**
 - View-level: `permission_classes = (IsAuthenticated,)` or `(AllowAny,)`

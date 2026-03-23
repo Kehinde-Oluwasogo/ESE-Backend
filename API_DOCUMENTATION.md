@@ -49,7 +49,7 @@ Create a new user account.
 ### Login (Obtain Token)
 **POST** `/auth/token/`
 
-Authenticate and receive JWT tokens.
+Authenticate and receive JWT tokens. Username lookup is **case-insensitive** for better UX.
 
 **Request Body:**
 ```json
@@ -73,6 +73,8 @@ Authenticate and receive JWT tokens.
   "detail": "No active account found with the given credentials"
 }
 ```
+
+**Note:** Username is case-insensitive - both "john_doe" and "JOHN_DOE" will work.
 
 ---
 
@@ -164,7 +166,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ### Request Password Reset
 **POST** `/auth/password-reset/request/`
 
-Send a password reset email to the user.
+Send a password reset email to the user. Email lookup is **case-insensitive**.
 
 **Request Body:**
 ```json
@@ -186,6 +188,8 @@ Send a password reset email to the user.
   "email": ["No user found with this email address."]
 }
 ```
+
+**Note:** Email lookup is case-insensitive - both "john@example.com" and "JOHN@EXAMPLE.COM" will work.
 
 **Error (429 Too Many Requests):**
 ```json
