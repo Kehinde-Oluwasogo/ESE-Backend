@@ -133,7 +133,9 @@ FRONTEND_URL=http://localhost:3000
 
 ### Base URL
 - Development: `http://localhost:8000/api`
-- Production: `https://backend-b2tz.onrender.com`
+### Production URL
+- Backend: `https://backend-b2tz.onrender.com`
+- Frontend: `https://new-frontend-rew2.onrender.com`
 
 ### Public Endpoints (No Auth Required)
 ```
