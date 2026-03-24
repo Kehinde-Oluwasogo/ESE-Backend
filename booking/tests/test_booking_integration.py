@@ -29,7 +29,7 @@ def test_superuser_can_create_booking_for_target_user_with_user_id():
         "full_name": "Target User",
         "email": "booking_target@example.com",
         "service": "Massage",
-        "booking_date": date(2026, 3, 13).isoformat(),
+        "booking_date": date(2026, 4, 13).isoformat(),
         "booking_time": time(14, 0).isoformat(),
         "notes": "admin-created booking",
         "status": "pending",
@@ -64,7 +64,7 @@ def test_regular_user_can_only_create_booking_for_self_even_if_user_id_provided(
         "full_name": "Regular User",
         "email": "regular_booking_user@example.com",
         "service": "Massage",
-        "booking_date": date(2026, 3, 14).isoformat(),
+        "booking_date": date(2026, 4, 14).isoformat(),
         "booking_time": time(15, 30).isoformat(),
         "notes": "regular user booking",
         "status": "pending",
@@ -89,7 +89,7 @@ def test_regular_user_sees_only_their_own_bookings():
         full_name="Owner User",
         email="owner@example.com",
         service="Haircut",
-        booking_date=date(2026, 3, 11),
+        booking_date=date(2026, 4, 11),
         booking_time=time(10, 30),
         notes="own",
     )
@@ -99,7 +99,7 @@ def test_regular_user_sees_only_their_own_bookings():
         full_name="Other User",
         email="other@example.com",
         service="Massage",
-        booking_date=date(2026, 3, 12),
+        booking_date=date(2026, 4, 12),
         booking_time=time(11, 0),
         notes="other",
     )
@@ -137,7 +137,7 @@ def test_superuser_can_list_all_bookings():
         full_name="First User",
         email="first@example.com",
         service="Haircut",
-        booking_date=date(2026, 3, 15),
+        booking_date=date(2026, 4, 15),
         booking_time=time(9, 30),
         notes="first",
     )
@@ -146,7 +146,7 @@ def test_superuser_can_list_all_bookings():
         full_name="Second User",
         email="second@example.com",
         service="Massage",
-        booking_date=date(2026, 3, 16),
+        booking_date=date(2026, 4, 16),
         booking_time=time(10, 30),
         notes="second",
     )
