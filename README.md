@@ -18,14 +18,14 @@ This repository contains the secure, scalable API layer for the ESE booking syst
 ✅ **User Management** - Registration, profiles, admin capabilities with audit logging
 ✅ **Booking System** - Full CRUD operations with permission-based filtering
 ✅ **Activity Logging** - Comprehensive audit trail for compliance and security
-✅ **Production Ready** - Deployed on Render with PostgreSQL, comprehensive testing (33 tests)
+✅ **Production Ready** - Deployed on Render with PostgreSQL, comprehensive testing (30 tests)
 
 ## Tech Stack
 
 - **Backend Framework**: Python 3.10+ with Django & Django REST Framework
 - **Authentication**: JWT (Simple JWT library)
 - **Database**: SQLite (development) | PostgreSQL (production via DATABASE_URL)
-- **Email**: SendGrid integration for password reset emails
+- **Email**: SendGrid integration for password reset emailsid
 - **Deployment**: Gunicorn + WhiteNoise on Render
 - **Testing**: Pytest with unit, integration, and BDD test coverage
 
@@ -48,7 +48,7 @@ build.sh               → Build and migration script for Render deployment
 - Python 3.10+
 - Virtual environment tool (`venv`)
 - Git
-- SendGrid account (optional, for email testing)
+- SendGrid account (optional, for email testing (**ALWAYS CHECK SPAM FOR EMAILS FROM SENDGRID**))
 
 ### Installation (5 minutes)
 
@@ -178,8 +178,6 @@ POST /auth/users/toggle-active/         # Activate/deactivate user
 
 ## 🔐 Authentication
 
-## 🔐 Authentication
-
 **Token-Based JWT Flow:**
 1. User registers or logs in
 2. Backend issues Access Token (5 min) + Refresh Token (24 hrs)
@@ -220,9 +218,9 @@ This application implements enterprise-grade security practices:
 
 ## 🧪 Testing
 
-The project includes **33 comprehensive tests** across unit, integration, and BDD layers:
+The project includes **30 comprehensive tests** across unit, integration, and BDD layers:
 
-- **8 Unit Tests**: Password rate limiting, token validation, profile creation
+- **5 Unit Tests**: Password rate limiting, token validation, profile creation
 - **23 Integration Tests**: Full API workflows with permissions and error handling
 - **2 BDD Tests**: Feature-based acceptance scenarios
 
@@ -262,23 +260,28 @@ python manage.py runserver
 
 ### Production (Render)
 
-The application is deployed on [Render](https://render.com) with PostgreSQL.
+The application is deployed on [Render](https://render.com) with PostgreSQL. You are required to set up a render account to deploy your application.
 
-**Production URL:** `https://ese-booking-backend.onrender.com`
+You can test my application at:
+
+**Production URL:** `https://new-frontend-rew2.onrender.com/`
 
 **Quick Deploy Steps:**
 1. Push to `main` branch
 2. Render automatically builds and deploys
 3. See [Deployment Guide](DEPLOYMENT.md) for detailed instructions, troubleshooting, and monitoring
 
+I have already setup an admin account for you to test:
 **Pre-Configured Admin Credentials (Testing Only):**
 ```
 Email: Sirkeno@gmail.com
 Password: Sirkeno7991!
 ```
-*⚠️ For testing only. Change immediately in production.*
 
-**Current Production Deployment Checklist:**
+But you'll have to register a user account to make CRUD Operations.
+
+
+**Production Deployment Checklist:**
 - ✅ DEBUG set to False
 - ✅ SECRET_KEY from environment variables
 - ✅ ALLOWED_HOSTS configured correctly
@@ -298,193 +301,193 @@ The system uses a modular, scalable architecture:
 ```
 Frontend (React with HashRouter)
          ↓
-    REST API (Django + DRF)
-         ↓
-  Authentication + Booking Apps
-         ↓
-    PostgreSQL Database
-         ↓
-    SendGrid Email Service
-```
+             REST API (Django + DRF)
+                      ↓
+                        Authentication + Booking Apps
+                                 ↓
+                                     PostgreSQL Database
+                                              ↓
+                                                  SendGrid Email Service
+                                                  ```
 
-**Key Design Decisions:**
-- JWT tokens for stateless authentication
-- Role-Based Access Control (admin vs regular user)
-- Modular Django apps for maintainability
-- Separate serializers for API validation
-- Comprehensive audit logging for compliance
+                                                  **Key Design Decisions:**
+                                                  - JWT tokens for stateless authentication
+                                                  - Role-Based Access Control (admin vs regular user)
+                                                  - Modular Django apps for maintainability
+                                                  - Separate serializers for API validation
+                                                  - Comprehensive audit logging for compliance
 
-See [System Architecture](ARCHITECTURE.md) for detailed diagram and design rationale.
+                                                  See [System Architecture](ARCHITECTURE.md) for detailed diagram and design rationale.
 
----
+                                                  ---
 
-## 📊 Data Models
+                                                  ## 📊 Data Models
 
-Core entities:
+                                                  Core entities:
 
-| Model | Purpose |
-|-------|---------|
-| **User** | Django built-in with email, username, superuser flag |
-| **UserProfile** | Extended user data: picture, bio, memorable_information |
-| **Booking** | Service booking with date, time, status, notes |
-| **PasswordResetToken** | One-time password reset tokens (1-hour expiration) |
-| **AdminActivityLog** | Audit trail: admin actions, targets, IPs, timestamps |
-| **AccountHistory** | Account lifecycle events (created, revoked, restricted) |
+                                                  | Model | Purpose |
+                                                  |-------|---------|
+                                                  | **User** | Django built-in with email, username, superuser flag |
+                                                  | **UserProfile** | Extended user data: picture, bio, memorable_information |
+                                                  | **Booking** | Service booking with date, time, status, notes |
+                                                  | **PasswordResetToken** | One-time password reset tokens (1-hour expiration) |
+                                                  | **AdminActivityLog** | Audit trail: admin actions, targets, IPs, timestamps |
+                                                  | **AccountHistory** | Account lifecycle events (created, revoked, restricted) |
 
-For complete schema with relationships and indexes, see [Database Schema](DATABASE_SCHEMA.md).
+                                                  For complete schema with relationships and indexes, see [Database Schema](DATABASE_SCHEMA.md).
 
----
+                                                  ---
 
-## 🔧 How to Use the Application
+                                                  ## 🔧 How to Use the Application
 
-### User Workflow
+                                                  ### User Workflow
 
-**1. Registration**
-```bash
-POST /api/auth/register/
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "SecurePass123!",
-  "first_name": "John",
-  "last_name": "Doe"
-}
-# Response: access & refresh tokens
-```
+                                                  **1. Registration**
+                                                  ```bash
+                                                  POST /api/auth/register/
+                                                  {
+                                                    "username": "john_doe",
+                                                      "email": "john@example.com",
+                                                        "password": "SecurePass123!",
+                                                          "first_name": "John",
+                                                            "last_name": "Doe"
+                                                            }
+                                                            # Response: access & refresh tokens
+                                                            ```
 
-**2. Login**
-```bash
-POST /api/auth/token/
-{
-  "username": "john_doe",
-  "password": "SecurePass123!"
-}
-# Response: access & refresh tokens
-```
+                                                            **2. Login**
+                                                            ```bash
+                                                            POST /api/auth/token/
+                                                            {
+                                                              "username": "john_doe",
+                                                                "password": "SecurePass123!"
+                                                                }
+                                                                # Response: access & refresh tokens
+                                                                ```
 
-**3. View Profile**
-```bash
-GET /api/auth/user/
-Authorization: Bearer <access_token>
-```
+                                                                **3. View Profile**
+                                                                ```bash
+                                                                GET /api/auth/user/
+                                                                Authorization: Bearer <access_token>
+                                                                ```
 
-**4. Create Booking**
-```bash
-POST /api/bookings/
-Authorization: Bearer <access_token>
-{
-  "booking_date": "2026-04-15",
-  "booking_time": "10:00:00",
-  "service_type": "Haircut"
-}
-```
+                                                                **4. Create Booking**
+                                                                ```bash
+                                                                POST /api/bookings/
+                                                                Authorization: Bearer <access_token>
+                                                                {
+                                                                  "booking_date": "2026-04-15",
+                                                                    "booking_time": "10:00:00",
+                                                                      "service_type": "Haircut"
+                                                                      }
+                                                                      ```
 
-**5. Password Reset**
-```bash
-# Step 1: Request reset
-POST /api/auth/password-reset/request/
-{ "email": "john@example.com" }
+                                                                      **5. Password Reset**
+                                                                      ```bash
+                                                                      # Step 1: Request reset
+                                                                      POST /api/auth/password-reset/request/
+                                                                      { "email": "john@example.com" }
 
-# Step 2: User receives email with token link
+                                                                      # Step 2: User receives email with token link
 
-# Step 3: Validate token
-POST /api/auth/password-reset/validate/
-{ "token": "ABC123..." }
+                                                                      # Step 3: Validate token
+                                                                      POST /api/auth/password-reset/validate/
+                                                                      { "token": "ABC123..." }
 
-# Step 4: Confirm reset with new password
-POST /api/auth/password-reset/confirm/
-{
-  "token": "ABC123...",
-  "new_password": "NewPass456!"
-}
-```
+                                                                      # Step 4: Confirm reset with new password
+                                                                      POST /api/auth/password-reset/confirm/
+                                                                      {
+                                                                        "token": "ABC123...",
+                                                                          "new_password": "NewPass456!"
+                                                                          }
+                                                                          ```
 
-### Admin Workflow
+                                                                          ### Admin Workflow
 
-Admins have additional capabilities:
+                                                                          Admins have additional capabilities:
 
-```bash
-# Create other admin users
-POST /api/auth/admin/create/
+                                                                          ```bash
+                                                                          # Create other admin users
+                                                                          POST /api/auth/admin/create/
 
-# Create regular user accounts
-POST /api/auth/users/create/
+                                                                          # Create regular user accounts
+                                                                          POST /api/auth/users/create/
 
-# Manage all bookings (view/update/delete)
-GET/PUT/PATCH/DELETE /api/bookings/
+                                                                          # Manage all bookings (view/update/delete)
+                                                                          GET/PUT/PATCH/DELETE /api/bookings/
 
-# View admin activity logs
-GET /api/auth/admin/activity-logs/
+                                                                          # View admin activity logs
+                                                                          GET /api/auth/admin/activity-logs/
 
-# View and manage user accounts
-GET /api/auth/users/list/
-POST /api/auth/users/change-password/
-POST /api/auth/users/toggle-active/
-```
+                                                                          # View and manage user accounts
+                                                                          GET /api/auth/users/list/
+                                                                          POST /api/auth/users/change-password/
+                                                                          POST /api/auth/users/toggle-active/
+                                                                          ```
 
----
+                                                                          ---
 
-## � Key Design Decisions
+                                                                          ## � Key Design Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **JWT Tokens** | Stateless auth enables horizontal scaling; works with SPAs and mobile apps |
-| **Role-Based Access** | Simple two-tier system (admin/user); extensible to ABAC if needed |
-| **Serializer Validation** | DRF best practice; keeps API logic away from models |
-| **Rate Limiting** | Custom implementation; prevents brute force without external dependencies |
-| **Audit Logging** | Explicit AdminActivityLog & AccountHistory for compliance and debugging |
-| **Environment Config** | 12-factor app; secrets never in code, works across dev/staging/prod |
-| **Modular Apps** | Independent auth & booking apps; can extract or scale separately |
-| **PostgreSQL in Prod** | Better concurrency and scaling than SQLite; professional backups |
-| **Gunicorn + WhiteNoise** | Production-tested WSGI; simple static file serving; fits free tier |
+                                                                          | Decision | Rationale |
+                                                                          |----------|-----------|
+                                                                          | **JWT Tokens** | Stateless auth enables horizontal scaling; works with SPAs and mobile apps |
+                                                                          | **Role-Based Access** | Simple two-tier system (admin/user); extensible to ABAC if needed |
+                                                                          | **Serializer Validation** | DRF best practice; keeps API logic away from models |
+                                                                          | **Rate Limiting** | Custom implementation; prevents brute force without external dependencies |
+                                                                          | **Audit Logging** | Explicit AdminActivityLog & AccountHistory for compliance and debugging |
+                                                                          | **Environment Config** | 12-factor app; secrets never in code, works across dev/staging/prod |
+                                                                          | **Modular Apps** | Independent auth & booking apps; can extract or scale separately |
+                                                                          | **PostgreSQL in Prod** | Better concurrency and scaling than SQLite; professional backups |
+                                                                          | **Gunicorn + WhiteNoise** | Production-tested WSGI; simple static file serving; fits free tier |
 
-For detailed explanations of all 10 design decisions, see [System Architecture](ARCHITECTURE.md#key-technical-decisions).
+                                                                          For detailed explanations of all 10 design decisions, see [System Architecture](ARCHITECTURE.md#key-technical-decisions).
 
----
+                                                                          ---
 
-## 📖 Complete Documentation
+                                                                          ## 📖 Complete Documentation
 
-Every aspect of the system is documented:
+                                                                          Every aspect of the system is documented:
 
-| Document | Contents |
-|----------|----------|
-| **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** | All endpoints with request/response examples, error codes |
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, component interactions, data flows, diagrams |
-| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Render deployment, environment setup, monitoring, troubleshooting |
-| **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** | Models, relationships, indexes, query examples, migrations |
-| **[SECURITY.md](SECURITY.md)** | Authentication, authorization, token handling, incident response |
-| **[test.md](test.md)** | Test coverage by module, running tests, CI/CD info |
+                                                                          | Document | Contents |
+                                                                          |----------|----------|
+                                                                          | **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** | All endpoints with request/response examples, error codes |
+                                                                          | **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, component interactions, data flows, diagrams |
+                                                                          | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Render deployment, environment setup, monitoring, troubleshooting |
+                                                                          | **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** | Models, relationships, indexes, query examples, migrations |
+                                                                          | **[SECURITY.md](SECURITY.md)** | Authentication, authorization, token handling, incident response |
+                                                                          | **[test.md](test.md)** | Test coverage by module, running tests, CI/CD info |
 
----
+                                                                          ---
 
-## 🙏 Acknowledgments
+                                                                          ## 🙏 Acknowledgments
 
-This project benefited from **GitHub Copilot** and **ChatGPT** as development assistants for:
-- Framework and DRF pattern guidance
-- Code generation for boilerplate and tests
-- Documentation structure and refinement
-- Authentication flow debugging
+                                                                          This project benefited from **GitHub Copilot** and **ChatGPT** as development assistants for:
+                                                                          - Framework and DRF pattern guidance
+                                                                          - Code generation for boilerplate and tests
+                                                                          - Documentation structure and refinement
+                                                                          - Authentication flow debugging
 
-**All code has been thoroughly reviewed and tested.** Full responsibility taken for all implementation.
+                                                                          **All code has been thoroughly reviewed and tested.** Full responsibility taken for all implementation.
 
----
+                                                                          ---
 
-## 👨‍💻 Author
+                                                                          ## 👨‍💻 Author
 
-**Kehinde Oluwasogo**
-- GitHub: https://github.com/Kehinde-Oluwasogo
+                                                                          **Kehinde Oluwasogo**
+                                                                          - GitHub: https://github.com/Kehinde-Oluwasogo
 
----
+                                                                          ---
 
-## 📝 License
+                                                                          ## 📝 License
 
-[Add your license here if applicable]
+                                                                          [Add your license here if applicable]
 
----
+                                                                          ---
 
-## 📞 Support
+                                                                          ## 📞 Support
 
-For issues, questions, or contributions:
-1. Check the relevant documentation file
-2. Review [Deployment Guide](DEPLOYMENT.md#troubleshooting) for common issues
-3. Check test files in `authentication/tests/` and `booking/tests/` for usage examples
+                                                                          For issues, questions, or contributions:
+                                                                          1. Check the relevant documentation file
+                                                                          2. Review [Deployment Guide](DEPLOYMENT.md#troubleshooting) for common issues
+                                                                          3. Check test files in `authentication/tests/` and `booking/tests/` for usage examples
