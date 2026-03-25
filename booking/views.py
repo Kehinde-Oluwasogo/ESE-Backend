@@ -59,10 +59,16 @@ class BookingView(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """
-        Update booking and send notification email if status changed
+        Update booking and send notification email if status changed.
+        Editing a booking changes its status from confirmed to pending.
         """
         try:
             old_status = serializer.instance.status if serializer.instance else None
+            
+            # Change status to pending when editing (unless explicitly setting to cancelled)
+            if serializer.instance.status == 'confirmed' and 'status' not in self.request.data:
+                serializer.instance.status = 'pending'
+            
             booking = serializer.save()
             
             # Send update email if status changed
@@ -92,11 +98,13 @@ class BookingView(viewsets.ModelViewSet):
         """
         Check available time slots for a specific date and service.
         Usage: /api/bookings/available_slots/?date=2024-01-15&service=Haircut
+        Optional parameter: booking_id (for editing existing bookings)
         
         If service is not provided, shows general availability.
         """
         date_str = request.query_params.get('date')
         service_name = request.query_params.get('service')
+        booking_id = request.query_params.get('booking_id')  # For editing existing bookings
         
         if not date_str:
             return Response(
@@ -153,8 +161,15 @@ class BookingView(viewsets.ModelViewSet):
                 status='pending'
             )
             
-            # Check if this slot is available
-            is_available = temp_booking.check_availability(exclude_self=False)
+            # If editing an existing booking, set its ID so it gets properly excluded
+            if booking_id:
+                try:
+                    temp_booking.pk = int(booking_id)
+                except (ValueError, TypeError):
+                    pass
+            
+            # Check if this slot is available (exclude_self=True for editing, False for new bookings)
+            is_available = temp_booking.check_availability(exclude_self=True)
             
             slot_info = {
                 'time': current_time.strftime('%H:%M'),
