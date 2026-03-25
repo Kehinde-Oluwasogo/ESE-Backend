@@ -217,9 +217,9 @@ Columns:
 - id (PRIMARY KEY)
 - user_id (FOREIGN KEY → auth_user.id)
   └─ Account affected
-- event_type (VARCHAR, max_length=50)
-  └─ Choices: CREATED, REVOKED, RESTRICTED, UNRESTRICTED, 
-             PASSWORD_RESET_INITIATED, PASSWORD_RESET_COMPLETED
+- event_type (VARCHAR, max_length=30)
+  └─ Choices: CREATED, REVOKED, DELETED, REACTIVATED, RESTRICTED, 
+             UNRESTRICTED, PASSWORD_RESET_INITIATED, PASSWORD_RESET_COMPLETED
 - performed_by_id (FOREIGN KEY → auth_user.id, nullable)
   └─ Admin who performed action (null if self-action)
 - description (TextField)
